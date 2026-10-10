@@ -27,15 +27,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import com.hyphenated.card.Card;
 
@@ -75,7 +75,8 @@ public class BoardEntity implements Serializable {
 	
 	@Column(name="board_id")
 	@Id
-	@GeneratedValue(strategy=GenerationType.TABLE)
+	@jakarta.persistence.TableGenerator(name="BoardEntityIds", table="poker_id_generator", pkColumnName="entity_name", valueColumnName="next_id", pkColumnValue="BoardEntity", allocationSize=1)
+	@GeneratedValue(strategy=GenerationType.TABLE, generator="BoardEntityIds")
 	public long getId() {
 		return id;
 	}

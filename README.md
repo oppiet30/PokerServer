@@ -1,3 +1,69 @@
+## Fedora / Tomcat 10.1 / MariaDB
+
+This fork builds a Jakarta WAR using Java 17+, Maven 3.9+, Spring 6.2,
+Hibernate 6.6 and MariaDB Connector/J. Use Tomcat **10.1** (Servlet 6),
+not Tomcat 10.0. The existing API paths are retained.
+
+Build with `mvn -B verify`; deploy `target/pokerserver.war`.
+Tests use an isolated HSQL database by default. GitHub Actions also runs
+all tests against a disposable MariaDB 11.4 database and starts the WAR
+in Tomcat 10.1 on a standard `ubuntu-latest` GitHub-hosted runner.
+
+On Fedora, install Maven and a Java 17-or-newer JDK with `dnf`.
+Check `java -version`, `mvn -version` and your installed Tomcat version;
+package and service names depend on how Tomcat was installed.
+
+Create a dedicated database and account with your MariaDB administrator:
+
+```sql
+CREATE DATABASE poker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'poker'@'localhost' IDENTIFIED BY 'choose-a-private-password';
+GRANT ALL PRIVILEGES ON poker.* TO 'poker'@'localhost';
+```
+
+Supply these variables to the **Tomcat service**, for example using a
+protected environment file referenced by a systemd service override:
+
+```text
+POKER_DB_URL=jdbc:mariadb://localhost:3306/poker
+POKER_DB_USER=poker
+POKER_DB_PASSWORD=choose-a-private-password
+POKER_DB_DDL=validate
+```
+
+The password is required; there is no root-account fallback. The default
+schema mode is `validate`. For a **new empty database only**, set
+`POKER_DB_DDL=update` for initial startup, then return to `validate`.
+Back up any existing database before migrating: Hibernate 6 changes
+identifier generator and enum mapping behavior, so old schemas may need
+an explicit migration. Do not use create/create-drop on real data.
+
+Copy the WAR to your Tomcat webapps directory, restart its service, and
+check `http://localhost:8080/pokerserver/ping` for `{"success":true}`.
+Inspect the service journal for startup errors. Allow the HTTP port in
+firewalld only if LAN access is required; keep MariaDB local. Follow
+Fedora SELinux policy for the actual Tomcat installation rather than
+disabling SELinux.
+
+This remains a legacy poker API: it has no authentication, and modifying
+operations accept GET requests. Keep it on a trusted LAN while those
+features are addressed. The migration does not establish internet-hosting
+or real-money readiness.
+
+For MariaDB test runs, use a disposable database:
+
+```sh
+mvn verify -Dpoker.test.driver=org.mariadb.jdbc.Driver \
+  -Dpoker.test.url=jdbc:mariadb://localhost:3306/poker_test \
+  -Dpoker.test.user=poker -Dpoker.test.password=test-only-password \
+  -Dpoker.test.dialect=org.hibernate.dialect.MariaDBDialect
+```
+
+The test schema is created and dropped automatically. Never point tests
+at your production database.
+
+---
+
 Poker Server
 =============
 

@@ -39,7 +39,7 @@ public class CardIterator implements Iterator<Card> {
 	public CardIterator(CardHolder... cardHolders) {
 		super();
 		this.cardHolderIterator = Iterators.forArray(cardHolders);
-		this.cardIterator = Iterators.emptyIterator();
+		this.cardIterator = java.util.Collections.emptyIterator();
 	}
 
 	@Override

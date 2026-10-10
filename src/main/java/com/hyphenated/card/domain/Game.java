@@ -26,19 +26,19 @@ package com.hyphenated.card.domain;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name="game")
@@ -57,7 +57,8 @@ public class Game implements Serializable {
 	
 	@Column(name="game_id")
 	@Id
-	@GeneratedValue(strategy=GenerationType.TABLE)
+	@jakarta.persistence.TableGenerator(name="GameIds", table="poker_id_generator", pkColumnName="entity_name", valueColumnName="next_id", pkColumnValue="Game", allocationSize=1)
+	@GeneratedValue(strategy=GenerationType.TABLE, generator="GameIds")
 	public long getId() {
 		return id;
 	}
