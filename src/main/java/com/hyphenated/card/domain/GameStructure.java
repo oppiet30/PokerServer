@@ -27,19 +27,19 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name="game_structure")
@@ -56,7 +56,8 @@ public class GameStructure implements Serializable {
 	
 	@Column(name="game_structure_id")
 	@Id
-	@GeneratedValue(strategy=GenerationType.TABLE)
+	@jakarta.persistence.TableGenerator(name="GameStructureIds", table="poker_id_generator", pkColumnName="entity_name", valueColumnName="next_id", pkColumnValue="GameStructure", allocationSize=1)
+	@GeneratedValue(strategy=GenerationType.TABLE, generator="GameStructureIds")
 	public long getId() {
 		return id;
 	}

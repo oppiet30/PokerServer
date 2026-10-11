@@ -25,18 +25,18 @@ package com.hyphenated.card.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import com.hyphenated.card.Card;
 import com.hyphenated.card.holder.Hand;
@@ -55,7 +55,8 @@ public class PlayerHand implements Comparable<PlayerHand>, Serializable{
 	private int roundBetAmount;
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.TABLE)
+	@jakarta.persistence.TableGenerator(name="PlayerHandIds", table="poker_id_generator", pkColumnName="entity_name", valueColumnName="next_id", pkColumnValue="PlayerHand", allocationSize=1)
+	@GeneratedValue(strategy=GenerationType.TABLE, generator="PlayerHandIds")
 	@Column(name="player_hand_id")
 	public long getId() {
 		return id;

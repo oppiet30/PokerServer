@@ -1,3 +1,103 @@
+## Fedora / GlassFish 8 / MariaDB
+
+This fork builds a Jakarta WAR using Java 21, Maven 3.9+, Spring 7.0.9,
+Hibernate 7.1 and MariaDB Connector/J. The deployment target is
+**GlassFish 8.0.5 Web Profile** (Servlet 6.1 / JPA 3.2), not Tomcat 10.
+The existing API paths are retained. Spring 7.0.9 contains the vendor's
+open-source fix for CVE-2026-47890; see docs/dependency-security-review.md.
+
+Build with `mvn -B verify`; deploy `target/pokerserver.war`.
+Tests use an isolated HSQL database by default. GitHub Actions also runs
+all tests against a disposable MariaDB 11.4 database and starts the WAR
+in GlassFish 8.0.5 on a standard `ubuntu-latest` GitHub-hosted runner.
+The smoke test verifies JSON responses and a database-backed create/read.
+
+On Fedora, install Maven and the Java 21 development package with `dnf`.
+Set JAVA_HOME to that JDK and check `java -version` and `mvn -version`.
+Download the GlassFish 8.0.5 Web Profile ZIP from
+https://glassfish.org/download_gf8.html and unpack it to a dedicated
+directory owned by the account that will run it. Do not run it as root.
+
+Create a dedicated database and account with your MariaDB administrator:
+
+```sql
+CREATE DATABASE poker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'poker'@'localhost' IDENTIFIED BY 'choose-a-private-password';
+GRANT ALL PRIVILEGES ON poker.* TO 'poker'@'localhost';
+```
+
+Supply these variables to the **GlassFish process**, for example using a
+protected environment file referenced by a systemd service override:
+
+```text
+POKER_DB_URL=jdbc:mariadb://localhost:3306/poker
+POKER_DB_USER=poker
+POKER_DB_PASSWORD=choose-a-private-password
+POKER_DB_DDL=validate
+```
+
+The password is required; there is no root-account fallback. The default
+schema mode is `validate`. For a **new empty database only**, set
+`POKER_DB_DDL=update` for initial startup, then return to `validate`.
+Back up any existing database before migrating: newer Hibernate changes
+identifier generator and enum mapping behavior, so old schemas may need
+an explicit migration. Do not use create/create-drop on real data.
+
+Start and deploy with GlassFish's CLI (replace the example path):
+
+```sh
+export JAVA_HOME=/path/to/jdk-21
+export POKER_DB_URL=jdbc:mariadb://localhost:3306/poker
+export POKER_DB_USER=poker
+read -rsp 'Database password: ' POKER_DB_PASSWORD; echo
+export POKER_DB_PASSWORD
+export POKER_DB_DDL=validate
+/path/to/glassfish8/bin/asadmin start-domain domain1
+/path/to/glassfish8/bin/asadmin deploy --name pokerserver --contextroot pokerserver target/pokerserver.war
+```
+
+For a new empty database only, use `POKER_DB_DDL=update` for first startup,
+then switch to validate and restart the domain. A running domain must be
+restarted to inherit changed environment variables. If Tomcat is already
+using port 8080 on Dell, stop it or give GlassFish a separate HTTP port;
+do not attempt to bind both to the same port. No Dell services are changed
+by this repository work.
+
+Check `http://localhost:8080/pokerserver/ping` for `{"success":true}`.
+Inspect `glassfish/domains/domain1/logs/server.log` for startup errors.
+Keep the admin port (4848) private; do not expose its initial local admin
+configuration to the network. Allow the HTTP port in
+firewalld only if LAN access is required; keep MariaDB local. Follow
+Fedora SELinux policy for the actual GlassFish installation rather than
+disabling SELinux. The WAR selects Hibernate explicitly and uses local
+application libraries via glassfish-web.xml; platform Jakarta APIs are
+provided by GlassFish. No persistence.xml is packaged, so Spring owns the
+entity manager and local transactions instead of server-managed JPA/JTA.
+Hibernate's JSON mapper is configured explicitly in
+`persistence-json-context.xml` to avoid discovering incompatible Jackson
+extensions from GlassFish's server class loader. Any future persistence
+JSON modules must be registered explicitly; HTTP JSON remains Spring MVC's
+separate configuration.
+
+This remains a legacy poker API: it has no authentication, and modifying
+operations accept GET requests. Keep it on a trusted LAN while those
+features are addressed. The migration does not establish internet-hosting
+or real-money readiness.
+
+For MariaDB test runs, use a disposable database:
+
+```sh
+mvn verify -Dpoker.test.driver=org.mariadb.jdbc.Driver \
+  -Dpoker.test.url=jdbc:mariadb://localhost:3306/poker_test \
+  -Dpoker.test.user=poker -Dpoker.test.password=test-only-password \
+  -Dpoker.test.dialect=org.hibernate.dialect.MariaDBDialect
+```
+
+The test schema is created and dropped automatically. Never point tests
+at your production database.
+
+---
+
 Poker Server
 =============
 

@@ -8,7 +8,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.servlet.ServletOutputStream;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 
 public class FilterServletOutputStream extends ServletOutputStream {
 
@@ -16,6 +17,14 @@ public class FilterServletOutputStream extends ServletOutputStream {
 
     public FilterServletOutputStream(OutputStream output) {
         stream = new DataOutputStream(output);
+    }
+
+    @Override
+    public boolean isReady() { return true; }
+
+    @Override
+    public void setWriteListener(WriteListener listener) {
+        throw new UnsupportedOperationException("This buffering stream supports blocking IO only");
     }
 
     public void write(int b) throws IOException {

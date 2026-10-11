@@ -310,6 +310,8 @@ public class HandServiceTest extends AbstractSpringTest {
 		gs.setStartingChips(2000);
 		gs.setCurrentBlindLevel(BlindLevel.BLIND_10_20);
 		game.setGameStructure(gs);
+        // Persist the parent before child ID generation can trigger a flush.
+        game = gameDao.save(game);
 		
 		Player p1 = new Player();
 		p1.setName("Player 1");

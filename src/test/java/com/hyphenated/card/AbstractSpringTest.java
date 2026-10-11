@@ -23,7 +23,8 @@ THE SOFTWARE.
 */
 package com.hyphenated.card;
 
-import org.hibernate.SessionFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,8 +45,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public abstract class AbstractSpringTest {
 
-	@Autowired
-	private SessionFactory sessionFactory;
+	@PersistenceContext
+	private EntityManager entityManager;
 	
 	/**
 	 * Helper function.  Due to the nature of Hibernate + Spring Transactions, the cache may get
@@ -54,7 +55,7 @@ public abstract class AbstractSpringTest {
 	 * will re-synchronize this, and also evict all entities from the persistence context.
 	 */
 	protected void flushAndClear(){
-		sessionFactory.getCurrentSession().flush();
-		sessionFactory.getCurrentSession().clear();
+		entityManager.flush();
+		entityManager.clear();
 	}
 }

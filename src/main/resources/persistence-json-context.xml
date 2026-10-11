@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- Do not scan server-wide Jackson modules: they may belong to a different
+         class loader. Register any future persistence modules explicitly here.
+         This mapper is for Hibernate, not Spring MVC's HTTP JSON responses. -->
+    <bean id="persistenceJsonMapper" class="org.hibernate.type.format.jackson.JacksonJsonFormatMapper">
+        <constructor-arg>
+            <bean class="com.fasterxml.jackson.databind.ObjectMapper" />
+        </constructor-arg>
+    </bean>
+</beans>

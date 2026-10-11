@@ -27,14 +27,15 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
+
 
 public class BaseDaoImpl<T> implements BaseDao<T> {
 
-	@Autowired
-	private SessionFactory sessionFactory;
+	@PersistenceContext
+	private EntityManager entityManager;
 	
 	private final Class<T> persistentClass;
 	
@@ -44,13 +45,13 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 				.getGenericSuperclass()).getActualTypeArguments()[0];
 	}
 	
-	protected Session getSession(){
-		return sessionFactory.getCurrentSession();
+	protected EntityManager getSession(){
+		return entityManager;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public T findById(Serializable id){
-		return (T) getSession().get(persistentClass, id);
+		return (T) getSession().find(persistentClass, id);
 	}
 
 	@Override
@@ -61,17 +62,21 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> findAll() {
-		return getSession().createCriteria(persistentClass).list();
+		return getSession().createQuery("from " + persistentClass.getSimpleName(), persistentClass).getResultList();
 	}
 	
 	@Override
 	public void remove(T objToRemove){
-		getSession().delete(objToRemove);
+		getSession().remove(objToRemove);
 	}
 	
 	@Override
 	public T save(T objToSave){
-		getSession().saveOrUpdate(objToSave);
+		if (getSession().contains(objToSave)) return objToSave;
+        Object id = getSession().getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(objToSave);
+        if (id != null && !(id instanceof Number && ((Number) id).longValue() == 0))
+            return getSession().merge(objToSave);
+		getSession().persist(objToSave);
 		return objToSave;
 	}
 	

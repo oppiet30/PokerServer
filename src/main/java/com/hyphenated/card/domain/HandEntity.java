@@ -27,23 +27,23 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import com.hyphenated.card.Card;
 
@@ -64,7 +64,8 @@ public class HandEntity implements Serializable {
 	private int lastBetAmount;
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.TABLE)
+	@jakarta.persistence.TableGenerator(name="HandEntityIds", table="poker_id_generator", pkColumnName="entity_name", valueColumnName="next_id", pkColumnValue="HandEntity", allocationSize=1)
+	@GeneratedValue(strategy=GenerationType.TABLE, generator="HandEntityIds")
 	@Column(name="hand_id")
 	public long getId() {
 		return id;
