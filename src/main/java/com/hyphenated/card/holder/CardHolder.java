@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import com.hyphenated.card.Card;
-import com.google.common.collect.Iterators;
 
 /**
  * A container designed for storing cards.
@@ -69,7 +68,7 @@ public class CardHolder implements Serializable {
 	 * @return unmodifiable card iterator
 	 */
 	public Iterator<Card> iterator() {
-		return Iterators.forArray(cards);
+		return java.util.Collections.unmodifiableList(Arrays.asList(cards)).iterator();
 	}
 
 	@Override

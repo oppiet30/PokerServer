@@ -30,7 +30,6 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Closeables;
 
 /**
  * Utility class for loading configuration and resource files
@@ -53,15 +52,13 @@ public class ConfigurationLoader {
 		try {
 			int tableSize = HAND_RANK_SIZE * 4;
 	        byte[] b = new byte[tableSize];
-	        InputStream br = null;
-			try {
-				br = new BufferedInputStream(ConfigurationLoader.class.getResourceAsStream(name));
-				int bytesRead = br.read(b, 0, tableSize);
+			InputStream resource = ConfigurationLoader.class.getResourceAsStream(name);
+			if (resource == null) throw new IOException("Missing resource: " + name);
+			try (InputStream br = new BufferedInputStream(resource)) {
+				int bytesRead = br.readNBytes(b, 0, tableSize);
 	            if (bytesRead != tableSize) {
-	                log.error("Read " + bytesRead + " bytes out of " + tableSize);
+	                throw new IOException("Read " + bytesRead + " bytes out of " + tableSize);
 	            }
-			} finally {
-				Closeables.closeQuietly(br);
 			}
 			for (int i = 0; i < HAND_RANK_SIZE; i++) {
 	            handRankArray[i] = littleEndianByteArrayToInt(b, i * 4);

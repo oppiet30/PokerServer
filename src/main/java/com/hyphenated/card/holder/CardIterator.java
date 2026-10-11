@@ -26,7 +26,6 @@ package com.hyphenated.card.holder;
 import java.util.Iterator;
 
 import com.hyphenated.card.Card;
-import com.google.common.collect.Iterators;
 
 /**
  * Iterator used for iterating over cards contained in several card holders.
@@ -38,7 +37,7 @@ public class CardIterator implements Iterator<Card> {
 
 	public CardIterator(CardHolder... cardHolders) {
 		super();
-		this.cardHolderIterator = Iterators.forArray(cardHolders);
+		this.cardHolderIterator = java.util.Arrays.asList(cardHolders).iterator();
 		this.cardIterator = java.util.Collections.emptyIterator();
 	}
 
