@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
           cache: maven
       - name: Unit and HSQL persistence tests
         run: mvn -B -ntp verify
@@ -42,20 +42,11 @@ jobs:
           -Dpoker.test.user=poker
           -Dpoker.test.password=test-only-password
           -Dpoker.test.dialect=org.hibernate.dialect.MariaDBDialect
-      - name: Tomcat 10.1 deployment smoke test
+      - name: GlassFish 8 deployment smoke test
+        env:
+          POKER_DB_URL: jdbc:mariadb://localhost:3306/poker_test
+          POKER_DB_USER: poker
+          POKER_DB_PASSWORD: test-only-password
+          POKER_DB_DDL: update
         run: |
-          docker run -d --name poker-tomcat --network host \
-            -e POKER_DB_URL=jdbc:mariadb://localhost:3306/poker_test \
-            -e POKER_DB_USER=poker -e POKER_DB_PASSWORD=test-only-password \
-            -e POKER_DB_DDL=update \
-            -v "$PWD/target/pokerserver.war:/usr/local/tomcat/webapps/pokerserver.war:ro" \
-            tomcat:10.1-jdk17-temurin
-          for attempt in $(seq 1 60); do
-            if curl -fsS http://localhost:8080/pokerserver/ping >/dev/null; then
-              docker logs poker-tomcat
-              exit 0
-            fi
-            sleep 2
-          done
-          docker logs poker-tomcat
-          exit 1
+          bash scripts/glassfish-smoke-test.sh

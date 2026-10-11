@@ -34,7 +34,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
-import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.GenerationType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -54,8 +54,7 @@ public class Player implements Comparable<Player>, Serializable{
 	@JsonIgnore
 	@Column(name="player_id")
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-    @GenericGenerator(name = "system-uuid", strategy = "uuid2")
+	@GeneratedValue(strategy = GenerationType.UUID)
 	public String getId() {
 		return id;
 	}

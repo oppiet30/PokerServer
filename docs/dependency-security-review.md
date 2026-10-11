@@ -1,5 +1,17 @@
 # Dependency security review (2026-10-11)
 
+## Current resolution
+
+The owner authorized switching from Tomcat 10 to GlassFish 8. The current
+branch uses Java 21, Spring 7.0.9 (the vendor's open-source fix), Servlet 6.1,
+JPA 3.2 and Hibernate 7.1. Guava remains removed. No scanner suppressions or
+Socket ignore comments are used. GlassFish deployment and database-backed
+HTTP checks replace the Tomcat check. CI and Socket results must be checked
+on the latest commit before merging.
+
+The assessment below describes the earlier Spring 6 branch and why it
+could not be patched without changing the runtime; it is historical.
+
 ## Guava
 
 Guava was used only for array iterators and quiet stream closing. It has
