@@ -73,6 +73,11 @@ disabling SELinux. The WAR selects Hibernate explicitly and uses local
 application libraries via glassfish-web.xml; platform Jakarta APIs are
 provided by GlassFish. No persistence.xml is packaged, so Spring owns the
 entity manager and local transactions instead of server-managed JPA/JTA.
+Hibernate's JSON mapper is configured explicitly in
+`persistence-json-context.xml` to avoid discovering incompatible Jackson
+extensions from GlassFish's server class loader. Any future persistence
+JSON modules must be registered explicitly; HTTP JSON remains Spring MVC's
+separate configuration.
 
 This remains a legacy poker API: it has no authentication, and modifying
 operations accept GET requests. Keep it on a trusted LAN while those

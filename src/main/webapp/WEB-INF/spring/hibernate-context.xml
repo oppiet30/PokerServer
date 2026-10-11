@@ -9,9 +9,13 @@
         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:property-placeholder />
+    <import resource="classpath:persistence-json-context.xml" />
     <bean id="entityManagerFactory"
         class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="persistenceProviderClass" value="org.hibernate.jpa.HibernatePersistenceProvider" />
+        <property name="jpaPropertyMap">
+            <map><entry key="hibernate.type.json_format_mapper" value-ref="persistenceJsonMapper" /></map>
+        </property>
         <property name="jpaProperties">
             <props>
                 <prop key="hibernate.dialect">org.hibernate.dialect.MariaDBDialect</prop>
